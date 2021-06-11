@@ -17,7 +17,7 @@
 /obj/item/weapon/cell/proc/updateicon()
 	overlays.len = 0
 
-	if(charge < 0.01)
+	if(charge < 0.01 || burnt)
 		return
 	else if(charge/maxcharge >=0.995)
 		overlays += image('icons/obj/power.dmi', "cell-o2")
@@ -124,6 +124,8 @@
 		rigged = 1 //broken batterys are dangerous
 
 /obj/item/weapon/cell/emp_act(severity)
+	if(burnt)
+		return
 	var/powerloss = round(16 * sqrt(maxcharge) / severity, 50) //at severity 1, ~500 for 1000 power cells, ~2750 for 30,000 power cells
 	charge = max(charge - powerloss, 0)
 	if(reliability != 100 && prob(50/severity))

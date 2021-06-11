@@ -21,10 +21,20 @@
 	var/brute_damage = 0 //Used by cyborgs
 	var/electronics_damage = 0 //Used by cyborgs
 	var/starch_cell = 0
+	var/burnt = 0 //for burned-out cells
 
 /obj/item/weapon/cell/suicide_act(mob/user)
 	to_chat(viewers(user), "<span class='danger'>[user] is licking the electrodes of the [src.name]! It looks like \he's trying to commit suicide.</span>")
 	return (SUICIDE_ACT_FIRELOSS)
+
+/obj/item/weapon/cell/proc/burn()
+	src.visible_message("<span class='danger'>The [src] sparks and burns out completely!</span>")
+	spark(src, 5, FALSE)
+	burnt = 1
+	icon_state = "bcell"
+	charge = 0
+	maxcharge = 0
+	updateicon()
 
 /obj/item/weapon/cell/empty/New()
 	..()
@@ -240,6 +250,11 @@
 	return
 
 /obj/item/weapon/cell/rad/process()
+	if((maxcharge <= 1 || charge_rate <= 1) && !burnt)
+		src.burn()
+		charge_rate = 0
+		damaged = FALSE
+
 	if(maxcharge <= charge)
 		return 0
 	var/power_used = min(maxcharge-charge,charge_rate)
